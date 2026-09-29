@@ -1,0 +1,53 @@
+name: Send Proxies to Telegram
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Send to Telegram
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          #!/bin/bash
+          # ترکیب همه فایل‌های پروکسی توی یک فایل موقت
+          cat proxy_ru.txt proxy_eu.txt proxy_us.txt proxy_asia.txt socks5.txt 2>/dev/null | grep '^tg://' > /tmp/all_proxies.txt
+
+          # اگه فایل خالی بود، از proxy_all_mtproto.txt استفاده کن
+          if [ ! -s /tmp/all_proxies.txt ]; then
+            grep '^tg://' proxy_all_mtproto.txt > /tmp/all_proxies.txt 2>/dev/null || true
+          fi
+
+          # چک کن که فایل خالی نباشه
+          if [ ! -s /tmp/all_proxies.txt ]; then
+            echo "هیچ پروکسی‌ای پیدا نشد. فایل‌ها خالی هستن."
+            exit 1
+          fi
+
+          # برداشتن ۳ پروکسی اول
+          PROXY1=$(head -n 1 /tmp/all_proxies.txt)
+          PROXY2=$(head -n 2 /tmp/all_proxies.txt | tail -n 1)
+          PROXY3=$(head -n 3 /tmp/all_proxies.txt | tail -n 1)
+
+          # ساخت متن با HTML
+          MESSAGE="متصل بمانید! 🔥
+          <a href=\"$PROXY1\">proxy 1</a>
+          <a href=\"$PROXY2\">proxy 2</a>
+          <a href=\"$PROXY3\">proxy 3</a>
+
+          @KhabarNab"
+
+          # ارسال
+          curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+            -d "chat_id=$CHAT_ID" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true"
