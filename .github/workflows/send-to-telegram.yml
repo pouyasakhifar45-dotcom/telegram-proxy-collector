@@ -28,28 +28,26 @@ jobs:
           fi
 
           if [ ! -s /tmp/all_proxies.txt ]; then
-            echo "No proxies found. Files are empty."
+            echo "No proxies found."
             exit 1
           fi
 
-          PROXY1=$(head -n 1 /tmp/all_proxies.txt)
-          PROXY2=$(head -n 2 /tmp/all_proxies.txt | tail -n 1)
-          PROXY3=$(head -n 3 /tmp/all_proxies.txt | tail -n 1)
+          # ارسال ۳ پروکسی اول به صورت جداگانه
+          for i in 1 2 3; do
+            PROXY=$(sed -n "${i}p" /tmp/all_proxies.txt)
+            if [ -z "$PROXY" ]; then continue; fi
 
-          # ساخت متن با HTML امن
-          MESSAGE="متصل بمانید! 🔥
-          <a href=\"$PROXY1\">proxy 1</a>
-          <a href=\"$PROXY2\">proxy 2</a>
-          <a href=\"$PROXY3\">proxy 3</a>
+            MESSAGE="🔥 متصل بمانید!
+          <a href=\"$PROXY\">Connect</a>
 
           @KhabarNab"
 
-          # ارسال با jq برای JSON امن
-          jq -n \
-            --arg chat_id "$CHAT_ID" \
-            --arg text "$MESSAGE" \
-            '{chat_id: $chat_id, text: $text, parse_mode: "HTML", disable_web_page_preview: true}' > /tmp/payload.json
+            jq -n \
+              --arg chat_id "$CHAT_ID" \
+              --arg text "$MESSAGE" \
+              '{chat_id: $chat_id, text: $text, parse_mode: "HTML", disable_web_page_preview: true}' > /tmp/payload.json
 
-          curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-            -H "Content-Type: application/json" \
-            -d @/tmp/payload.json
+            curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d @/tmp/payload.json
+          done
