@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T00:17:21.840414+00:00",
+  "timestamp": "2026-10-06T02:11:50.980183+00:00",
   "metrics": {
     "total": 200,
     "pings_count": 200,
@@ -8,12 +8,12 @@
     "stdev_ping": 0.023,
     "good_thr": 0.09,
     "bad_thr": 0.225,
-    "good": 106,
-    "medium": 94,
+    "good": 110,
+    "medium": 90,
     "bad": 0,
     "regions": {
-      "us": 26,
-      "eu": 138,
+      "us": 20,
+      "eu": 144,
       "ru": 36
     },
     "types": {
@@ -28,7 +28,7 @@
     "current_median_ping": 0.09,
     "current_stdev_ping": 0.023,
     "total_proxies": 200,
-    "trend_median_ping": 0.003,
+    "trend_median_ping": 0.0,
     "trend_direction": "stable"
   },
   "anomalies_count": 10,
